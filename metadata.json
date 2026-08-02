@@ -1,0 +1,6 @@
+{
+  "name": "Rolit Digitaal",
+  "description": "Bordspel Rolit digitaal speelbaar in tabletformaat met 2 tot 4 spelers, AI bots, 3D bal animaties, geluid en statistieken.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
