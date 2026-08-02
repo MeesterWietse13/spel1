@@ -82,14 +82,14 @@ export default function App() {
   const [players, setPlayers] = useState<PlayerConfig[]>(DEFAULT_PLAYERS);
   const activeColors = players.map((p) => p.id);
 
-  // App Settings (default showHints is false as requested by user)
+  // App Settings (default showHints is false as requested by user, default theme is 'white')
   const [settings, setSettings] = useState<GameSettings>({
     soundEnabled: true,
     showHints: false,
     allowUndo: true,
     tableMode: false,
     language: 'nl',
-    theme: 'classic',
+    theme: 'white',
     boardSize: 8,
   });
 
@@ -130,11 +130,14 @@ export default function App() {
   }, [invalidNotice]);
 
   // Restart game with current or new players setup
-  const handleStartGame = (newPlayers: PlayerConfig[], chosenBoardSize?: BoardSize) => {
+  const handleStartGame = (
+    newPlayers: PlayerConfig[],
+    chosenBoardSize?: BoardSize,
+    chosenTheme?: GameSettings['theme']
+  ) => {
     const size = chosenBoardSize || settings.boardSize;
-    if (chosenBoardSize) {
-      setSettings((prev) => ({ ...prev, boardSize: size }));
-    }
+    const theme = chosenTheme || settings.theme;
+    setSettings((prev) => ({ ...prev, boardSize: size, theme }));
     setPlayers(newPlayers);
     const colors = newPlayers.map((p) => p.id);
     const initBoard = createInitialBoard(colors, size);
@@ -417,6 +420,7 @@ export default function App() {
         onStartGame={handleStartGame}
         currentPlayers={players}
         currentBoardSize={settings.boardSize}
+        currentTheme={settings.theme}
       />
 
       <RulesModal

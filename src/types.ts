@@ -30,7 +30,7 @@ export interface Move {
 }
 
 export interface BoardTheme {
-  id: 'classic' | 'wood' | 'dark' | 'neon';
+  id: 'white' | 'classic' | 'wood' | 'dark' | 'neon';
   name: string;
   boardBg: string;
   socketBg: string;
@@ -46,6 +46,6 @@ export interface GameSettings {
   allowUndo: boolean;
   tableMode: boolean; // Rotates player controls for tablet sitting on table
   language: 'nl' | 'en';
-  theme: 'classic' | 'wood' | 'dark' | 'neon';
+  theme: 'white' | 'classic' | 'wood' | 'dark' | 'neon';
   boardSize: BoardSize;
 }

@@ -1,6 +1,14 @@
 import { BoardTheme } from '../types';
 
 export const BOARD_THEMES: Record<string, BoardTheme> = {
+  white: {
+    id: 'white',
+    name: 'Schoon Wit Bord',
+    boardBg: 'bg-gradient-to-br from-slate-100 via-slate-200 to-slate-100',
+    socketBg: 'bg-slate-300/90 shadow-[inset_0_3px_6px_rgba(0,0,0,0.25)] border border-slate-400/50',
+    gridLineColor: 'border-slate-300',
+    boardBorder: 'border-slate-200 shadow-[0_12px_40px_rgba(0,0,0,0.4)] bg-gradient-to-b from-slate-300 via-white to-slate-300',
+  },
   classic: {
     id: 'classic',
     name: 'Klassiek Rolit (Rood Vilt)',

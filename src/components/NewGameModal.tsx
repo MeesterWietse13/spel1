@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { BoardSize, GameMode, PlayerColor, PlayerConfig } from '../types';
+import { BoardSize, GameMode, GameSettings, PlayerColor, PlayerConfig } from '../types';
 import { PLAYER_INFO } from '../utils/rolitEngine';
-import { Users, Play, X, Sparkles, Grid } from 'lucide-react';
+import { Users, Play, X, Sparkles, Grid, Palette } from 'lucide-react';
 import { Sphere } from './Sphere';
 
 interface NewGameModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onStartGame: (players: PlayerConfig[], boardSize: BoardSize) => void;
+  onStartGame: (players: PlayerConfig[], boardSize: BoardSize, theme: GameSettings['theme']) => void;
   currentPlayers: PlayerConfig[];
   currentBoardSize?: BoardSize;
+  currentTheme?: GameSettings['theme'];
   id?: string;
 }
 
@@ -20,10 +21,12 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
   onStartGame,
   currentPlayers,
   currentBoardSize = 8,
+  currentTheme = 'white',
   id = 'new-game-modal',
 }) => {
   const [gameMode, setGameMode] = useState<GameMode>('4-players');
   const [boardSize, setBoardSize] = useState<BoardSize>(currentBoardSize);
+  const [boardTheme, setBoardTheme] = useState<GameSettings['theme']>(currentTheme);
 
   // Initial local setup state for 4 player names
   const [playerNames, setPlayerNames] = useState<Record<PlayerColor, string>>({
@@ -59,7 +62,7 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
       };
     });
 
-    onStartGame(finalPlayers, boardSize);
+    onStartGame(finalPlayers, boardSize, boardTheme);
   };
 
   const updatePlayerName = (color: PlayerColor, name: string) => {
@@ -157,6 +160,37 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
                     {boardSize === size && <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />}
                   </div>
                   <div className="text-[11px] font-medium opacity-70 mt-1">{desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Board Theme / Style Selector */}
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2.5 flex items-center gap-2">
+              <Palette className="w-4 h-4 text-sky-400" />
+              Spelbord Thema & Uiterlijk
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              {[
+                { id: 'white' as const, label: 'Schoon Wit Bord', previewBg: 'bg-slate-100 border-slate-300' },
+                { id: 'classic' as const, label: 'Klassiek Rood Vilt', previewBg: 'bg-red-950 border-amber-700' },
+                { id: 'wood' as const, label: 'Luxe Hout', previewBg: 'bg-amber-950 border-amber-800' },
+                { id: 'dark' as const, label: 'Modern Obsidian', previewBg: 'bg-slate-950 border-slate-700' },
+                { id: 'neon' as const, label: 'Cyber Neon', previewBg: 'bg-indigo-950 border-cyan-500' },
+              ].map((th) => (
+                <button
+                  key={th.id}
+                  type="button"
+                  onClick={() => setBoardTheme(th.id)}
+                  className={`p-2.5 rounded-xl border flex items-center gap-2.5 text-left transition-all ${
+                    boardTheme === th.id
+                      ? 'bg-sky-500/20 border-sky-400 text-sky-200 shadow-md scale-[1.02]'
+                      : 'bg-slate-800/80 hover:bg-slate-800 border-slate-700/80 text-slate-400'
+                  }`}
+                >
+                  <div className={`w-4 h-4 rounded-full border-2 shrink-0 ${th.previewBg}`} />
+                  <span className="text-xs font-bold leading-tight">{th.label}</span>
                 </button>
               ))}
             </div>
