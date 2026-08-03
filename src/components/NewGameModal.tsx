@@ -40,9 +40,9 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
 
   const activeColors: PlayerColor[] =
     gameMode === '2-players'
-      ? ['red', 'yellow']
+      ? ['red', 'green']
       : gameMode === '3-players'
-      ? ['red', 'yellow', 'blue']
+      ? ['red', 'yellow', 'green']
       : ['red', 'yellow', 'blue', 'green'];
 
   const handleStart = () => {
@@ -115,9 +115,9 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
             </label>
             <div className="grid grid-cols-3 gap-2.5">
               {[
-                { mode: '2-players' as GameMode, label: '2 Spelers', sub: 'Rood vs Geel' },
-                { mode: '3-players' as GameMode, label: '3 Spelers', sub: '+ Blauw' },
-                { mode: '4-players' as GameMode, label: '4 Spelers', sub: 'Klassiek Rolit' },
+                { mode: '2-players' as GameMode, label: '2 Spelers', sub: 'Rood ↔ Groen (Diagonaal)' },
+                { mode: '3-players' as GameMode, label: '3 Spelers', sub: 'Rood, Geel, Groen' },
+                { mode: '4-players' as GameMode, label: '4 Spelers', sub: 'Klassiek Rolit (4 Kleuren)' },
               ].map(({ mode, label, sub }) => (
                 <button
                   key={mode}

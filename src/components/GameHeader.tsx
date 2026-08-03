@@ -1,10 +1,11 @@
 import React from 'react';
-import { Volume2, VolumeX, RotateCcw, HelpCircle, Settings, Maximize2, Sparkles, Lightbulb, Smartphone } from 'lucide-react';
+import { Volume2, VolumeX, RotateCcw, HelpCircle, Settings, Maximize2, Sparkles, Lightbulb, Smartphone, Dices } from 'lucide-react';
 import { BoardTheme, GameSettings } from '../types';
 import { soundManager } from '../utils/audio';
 
 interface GameHeaderProps {
   onNewGame: () => void;
+  onOpenDiceRoll?: () => void;
   onReset: () => void;
   onUndo: () => void;
   canUndo: boolean;
@@ -18,6 +19,7 @@ interface GameHeaderProps {
 
 export const GameHeader: React.FC<GameHeaderProps> = ({
   onNewGame,
+  onOpenDiceRoll,
   onReset,
   onUndo,
   canUndo,
@@ -142,6 +144,18 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
         >
           <Maximize2 className="w-4 h-4 text-slate-400" />
         </button>
+
+        {/* Wie Begint / Dice Roll Button */}
+        {onOpenDiceRoll && (
+          <button
+            onClick={onOpenDiceRoll}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 font-bold text-xs sm:text-sm transition-all active:scale-95"
+            title="Gooi dobbelstenen om te bepalen wie begint"
+          >
+            <Dices className="w-4 h-4 text-amber-400" />
+            <span className="hidden md:inline">Wie Begint?</span>
+          </button>
+        )}
 
         {/* New Game Button */}
         <button

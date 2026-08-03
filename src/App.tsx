@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle, X, Sparkles } from 'lucide-react';
 import {
   BoardSize,
   BoardState,
@@ -28,6 +28,7 @@ import { NewGameModal } from './components/NewGameModal';
 import { RulesModal } from './components/RulesModal';
 import { SettingsModal } from './components/SettingsModal';
 import { GameOverModal } from './components/GameOverModal';
+import { DiceRollModal } from './components/DiceRollModal';
 
 // Default initial 4 human players configuration
 const DEFAULT_PLAYERS: PlayerConfig[] = [
@@ -95,12 +96,14 @@ export default function App() {
 
   const [board, setBoard] = useState<BoardState>(() => createInitialBoard(activeColors, settings.boardSize));
   const [activePlayerIndex, setActivePlayerIndex] = useState<number>(0);
+  const [startingPlayerIndex, setStartingPlayerIndex] = useState<number>(0);
   const [lastMove, setLastMove] = useState<Position | null>(null);
   const [flippedPositions, setFlippedPositions] = useState<Position[]>([]);
   const [isGameEnded, setIsGameEnded] = useState<boolean>(false);
 
   // Invalid move notification state
   const [invalidNotice, setInvalidNotice] = useState<InvalidMoveNotice | null>(null);
+  const [startingNotice, setStartingNotice] = useState<string | null>(null);
 
   // Undo History stack
   const [boardHistory, setBoardHistory] = useState<BoardState[]>([]);
@@ -109,6 +112,7 @@ export default function App() {
 
   // Modals state - ALWAYS show start setup modal on app load
   const [isNewGameModalOpen, setIsNewGameModalOpen] = useState<boolean>(true);
+  const [isDiceModalOpen, setIsDiceModalOpen] = useState<boolean>(false);
   const [isRulesModalOpen, setIsRulesModalOpen] = useState<boolean>(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
   const [isGameOverModalOpen, setIsGameOverModalOpen] = useState<boolean>(false);
@@ -129,7 +133,17 @@ export default function App() {
     }
   }, [invalidNotice]);
 
-  // Restart game with current or new players setup
+  // Auto-dismiss starting notice banner after 4.5 seconds
+  useEffect(() => {
+    if (startingNotice) {
+      const timer = setTimeout(() => {
+        setStartingNotice(null);
+      }, 4500);
+      return () => clearTimeout(timer);
+    }
+  }, [startingNotice]);
+
+  // When setting up a new game from NewGameModal -> open Dice Minigame!
   const handleStartGame = (
     newPlayers: PlayerConfig[],
     chosenBoardSize?: BoardSize,
@@ -139,10 +153,20 @@ export default function App() {
     const theme = chosenTheme || settings.theme;
     setSettings((prev) => ({ ...prev, boardSize: size, theme }));
     setPlayers(newPlayers);
-    const colors = newPlayers.map((p) => p.id);
-    const initBoard = createInitialBoard(colors, size);
+    setIsNewGameModalOpen(false);
+    setIsGameOverModalOpen(false);
+    setIsDiceModalOpen(true);
+  };
+
+  // Called when dice roll minigame completes
+  const handleDiceRollComplete = (winningPlayerIndex: number) => {
+    setIsDiceModalOpen(false);
+    setStartingPlayerIndex(winningPlayerIndex);
+    setActivePlayerIndex(winningPlayerIndex);
+
+    const colors = players.map((p) => p.id);
+    const initBoard = createInitialBoard(colors, settings.boardSize);
     setBoard(initBoard);
-    setActivePlayerIndex(0);
     setLastMove(null);
     setFlippedPositions([]);
     setBoardHistory([]);
@@ -150,12 +174,31 @@ export default function App() {
     setMoveHistory([]);
     setIsGameEnded(false);
     setInvalidNotice(null);
-    setIsGameOverModalOpen(false);
-    setIsNewGameModalOpen(false);
+
+    const starterName = players[winningPlayerIndex]?.name || 'Speler';
+    setStartingNotice(`🎲 Dobbelsteen winnaar: ${starterName} mag beginnen!`);
   };
 
+  // Replay / Reset current game: Rotates starting player to the NEXT player automatically!
   const handleResetCurrentGame = () => {
-    handleStartGame(players, settings.boardSize);
+    const nextStartIndex = (startingPlayerIndex + 1) % players.length;
+    setStartingPlayerIndex(nextStartIndex);
+    setActivePlayerIndex(nextStartIndex);
+
+    const colors = players.map((p) => p.id);
+    const initBoard = createInitialBoard(colors, settings.boardSize);
+    setBoard(initBoard);
+    setLastMove(null);
+    setFlippedPositions([]);
+    setBoardHistory([]);
+    setPlayerIndexHistory([]);
+    setMoveHistory([]);
+    setIsGameEnded(false);
+    setIsGameOverModalOpen(false);
+    setInvalidNotice(null);
+
+    const starterName = players[nextStartIndex]?.name || 'Speler';
+    setStartingNotice(`🔄 Volgende partij: ${starterName} mag als eerste beginnen!`);
   };
 
   // Update settings handler
@@ -322,6 +365,7 @@ export default function App() {
       {/* Top Navigation Header */}
       <GameHeader
         onNewGame={() => setIsNewGameModalOpen(true)}
+        onOpenDiceRoll={() => setIsDiceModalOpen(true)}
         onReset={handleResetCurrentGame}
         onUndo={handleUndo}
         canUndo={boardHistory.length > 0 && settings.allowUndo}
@@ -385,6 +429,26 @@ export default function App() {
                   <X className="w-4 h-4" />
                 </button>
               </motion.div>
+            ) : startingNotice ? (
+              /* Starting Player / Rotation Notice Banner */
+              <motion.div
+                key="starting-notice"
+                initial={{ opacity: 0, y: 15, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.96 }}
+                className="bg-emerald-950/95 border-2 border-emerald-500/80 text-emerald-100 rounded-2xl p-3 shadow-2xl flex items-center justify-between gap-3 backdrop-blur-md"
+              >
+                <div className="flex items-center gap-2 text-xs sm:text-sm font-extrabold text-emerald-200">
+                  <Sparkles className="w-5 h-5 text-emerald-400 shrink-0" />
+                  <span>{startingNotice}</span>
+                </div>
+                <button
+                  onClick={() => setStartingNotice(null)}
+                  className="text-emerald-400 hover:text-white p-1 rounded-lg transition-colors shrink-0"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </motion.div>
             ) : (
               /* Active Player Turn Banner */
               <motion.div
@@ -421,6 +485,12 @@ export default function App() {
         currentPlayers={players}
         currentBoardSize={settings.boardSize}
         currentTheme={settings.theme}
+      />
+
+      <DiceRollModal
+        isOpen={isDiceModalOpen}
+        players={players}
+        onComplete={handleDiceRollComplete}
       />
 
       <RulesModal

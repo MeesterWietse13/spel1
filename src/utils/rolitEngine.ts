@@ -47,23 +47,19 @@ export const PLAYER_INFO: Record<PlayerColor, { name: string; hex: string; bg: s
  * Creates an initial Rolit board (6x6 or 8x8).
  * Center 4 cells are populated with initial spheres.
  */
-export function createInitialBoard(activeColors: PlayerColor[] = PLAYER_COLORS, boardSize: BoardSize = 8): BoardState {
+export function createInitialBoard(_activeColors: PlayerColor[] = PLAYER_COLORS, boardSize: BoardSize = 8): BoardState {
   const board: BoardState = Array(boardSize)
     .fill(null)
     .map(() => Array(boardSize).fill(null));
 
-  // Determine initial center ball colors
-  const c1 = activeColors[0] || 'red';
-  const c2 = activeColors[1] || 'yellow';
-  const c3 = activeColors[2] || 'blue';
-  const c4 = activeColors[3] || 'green';
-
   const mid = Math.floor(boardSize / 2) - 1;
 
-  board[mid][mid] = c1;
-  board[mid][mid + 1] = c2;
-  board[mid + 1][mid] = c3;
-  board[mid + 1][mid + 1] = c4;
+  // The official Rolit starting layout always has 1 of each of the 4 colors in the center 2x2:
+  // Top-Left: Red, Top-Right: Yellow, Bottom-Left: Blue, Bottom-Right: Green
+  board[mid][mid] = 'red';
+  board[mid][mid + 1] = 'yellow';
+  board[mid + 1][mid] = 'blue';
+  board[mid + 1][mid + 1] = 'green';
 
   return board;
 }
